@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
 import android.widget.ImageView;
@@ -17,7 +18,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
 
     ListView fileList;
-//    BaseAdapter fileAdapter;
+    BaseAdapter fileAdapter;
     TextView titlesong;
 
     @Override
@@ -26,6 +27,32 @@ public class MainActivity extends AppCompatActivity {
         this.setContentView(R.layout.activity_main);
         initData();
         init();
+        componentListener();
+    }
+
+    /*
+    * 初始化控件监听事件
+    * */
+    private void componentListener() {
+        fileList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                LinearLayout clickItem = (LinearLayout) view;
+                TextView text = (TextView) clickItem.getChildAt(1);//获取选中项的TextView
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        fileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LinearLayout clickItem = (LinearLayout) view;
+                TextView text = (TextView) clickItem.getChildAt(1);//获取选中项的TextView
+            }
+        });
     }
 
     /*
@@ -41,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         titlesong = (TextView) findViewById(R.id.titletext);
         titlesong.setText("Touch the sky");
         fileList = (ListView) findViewById(R.id.filelist);
-        BaseAdapter fileAdapter = new BaseAdapter() {
+        fileAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
                 return 1;
