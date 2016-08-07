@@ -1,85 +1,95 @@
 package com.example.administrator.myapplication;
 
-import android.graphics.BitmapFactory;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
-import android.support.annotation.IntegerRes;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    MediaPlayer mediaplayer;
-    ImageButton btnpaly;
-    ImageButton btnpause;
-    ImageButton btnstop;
-    TextView statusmsg;
+    ListView fileList;
+//    BaseAdapter fileAdapter;
+    TextView titlesong;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mediaplayer = MediaPlayer.create(this,R.raw.touchthesky);
-        setContentView(R.layout.activity_main);
-        initComponents();
-//        mediaplayer.start();
+        this.setContentView(R.layout.activity_main);
+        initData();
+        init();
     }
 
-    private void initComponents() {
-        btnpaly = (ImageButton) findViewById(R.id.play);
-        btnpause = (ImageButton) findViewById(R.id.pause);
-        btnstop  = (ImageButton) findViewById(R.id.stop);
-        statusmsg = (TextView) findViewById(R.id.statustext);
+    /*
+    * 初始化基础数据
+    * */
+    private void initData() {
+    }
 
-        btnpaly.setOnClickListener(new Button.OnClickListener(){
+    /*
+    * 初始化基本控件
+    * */
+    private void init() {
+        titlesong = (TextView) findViewById(R.id.titletext);
+        titlesong.setText("Touch the sky");
+        fileList = (ListView) findViewById(R.id.filelist);
+        BaseAdapter fileAdapter = new BaseAdapter() {
+            @Override
+            public int getCount() {
+                return 1;
+            }
 
             @Override
-            public void onClick(View view) {
-                playMedia();
+            public Object getItem(int i) {
+                return null;
             }
-        });
-
-        btnpause.setOnClickListener(new Button.OnClickListener(){
 
             @Override
-            public void onClick(View view) {
-                pauseMedia();
+            public long getItemId(int i) {
+                return 0;
             }
-        });
-
-        btnstop.setOnClickListener(new Button.OnClickListener(){
 
             @Override
-            public void onClick(View view) {
-                stopMedia();
+            public View getView(int i, View view, ViewGroup viewGroup) {
+                //动态生成列表中的项对应的view，每个view由LinearLayout
+                //中包含一个ImageView及两个TextView组成
+                LinearLayout singal_Item = new LinearLayout(MainActivity.this);
+
+                singal_Item.setOrientation(LinearLayout.HORIZONTAL);//朝向向下
+                singal_Item.setPadding(5, 5, 5, 5);
+
+                ImageView albumImage = new ImageView(MainActivity.this);
+                albumImage.setImageDrawable(getResources().getDrawable(R.drawable.front));
+                albumImage.setScaleType(ImageView.ScaleType.FIT_XY);
+                albumImage.setLayoutParams(new Gallery.LayoutParams(100, 98));
+
+                singal_Item.addView(albumImage);
+
+                TextView songName = new TextView(MainActivity.this);
+                songName.setText("Touch the sky");
+                songName.setTextSize(24);
+                songName.setTextColor(Color.BLUE);
+                songName.setPadding(5, 5, 5, 5);
+                songName.setGravity(Gravity.LEFT);
+
+                singal_Item.addView(songName);
+                return singal_Item;
             }
-        });
-    }
+        };
 
-    private void stopMedia() {
-        mediaplayer.pause();
-        mediaplayer.seekTo(0);
-        statusmsg.setText("停止");
-    }
-
-    private void pauseMedia() {
-        mediaplayer.pause();
-        statusmsg.setText("暂停");
-    }
-
-    private void playMedia() {
-        mediaplayer.start();
-        statusmsg.setText("播放");
+        fileList.setAdapter(fileAdapter);
     }
 
 
+//////////////////////////////////////////////////////////////
 //    SoundPool soundPool;
 //
 //    HashMap<Integer,Integer> poolmap ;
