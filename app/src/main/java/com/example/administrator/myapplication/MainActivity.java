@@ -15,12 +15,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.administrator.myapplication.toolclasses.FileUtils;
+
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     ListView fileList;
     BaseAdapter fileAdapter;
     TextView titlesong;
-
+    List dataList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     * 初始化基础数据
     * */
     private void initData() {
+        dataList = FileUtils.getFileListByFileTypeWithPath(this,new String[]{"mp3","wav"});
     }
 
     /*
@@ -68,10 +73,13 @@ public class MainActivity extends AppCompatActivity {
         titlesong = (TextView) findViewById(R.id.titletext);
         titlesong.setText("Touch the sky");
         fileList = (ListView) findViewById(R.id.filelist);
+        if(dataList==null||dataList.size()<=0){
+            dataList.add(new String("no data!"));
+        }
         fileAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
-                return 1;
+                return dataList.size();
             }
 
             @Override
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 singal_Item.addView(albumImage);
 
                 TextView songName = new TextView(MainActivity.this);
-                songName.setText("Touch the sky");
+                songName.setText(dataList.get(i).toString());
                 songName.setTextSize(24);
                 songName.setTextColor(Color.BLUE);
                 songName.setPadding(5, 5, 5, 5);
