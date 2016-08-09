@@ -19,7 +19,14 @@ import java.util.List;
  */
 public class FileUtils {
 
-    public static List getFileListByFileType(Context context,String[] filetypes){
+    private String[] searchType;
+
+    public FileUtils(){
+
+    }
+
+    //通过类型查找文件
+    public List getFileListByFileType(Context context,String[] filetypes){
 
         //返回列表
         List datalist = new ArrayList();
@@ -27,13 +34,8 @@ public class FileUtils {
         //内存根目录
         File rootpath = Environment.getRootDirectory();
 
-        Log.d("tag",rootpath.getPath());
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>"+rootpath.getPath());
         //存储卡根目录
         File sdpath = Environment.getExternalStorageDirectory();
-
-        Log.d("tag",sdpath.getPath());
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>"+sdpath.getPath());
 
         Uri fileUri = MediaStore.Files.getContentUri(rootpath.getPath());
 
@@ -72,22 +74,22 @@ public class FileUtils {
         return datalist;
     }
     //遍历文件夹查找文件
-    public static List getFileListByFileTypeWithPath(Context context,String[] filetypes){
+    public List getFileListByFileTypeWithPath(Context context,String[] filetypes){
 
+        searchType = filetypes;
         //返回列表
         List datalist = new ArrayList();
         //从存储中获取
         //内存根目录
         File rootpath = Environment.getRootDirectory();
-
-        Log.d("tag",rootpath.getPath());
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>"+rootpath.getPath());
         datalist.addAll(getAudioFiles(rootpath));
+
         //存储卡根目录
         File sdpath = Environment.getExternalStorageDirectory();
-
-        Log.d("tag",sdpath.getPath());
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>"+sdpath.getPath());
+        if(sdpath.canRead()){
+            int num=1;
+        }
+        datalist.addAll(getAudioFiles(sdpath));
         return datalist;
     }
 
@@ -96,7 +98,7 @@ public class FileUtils {
         if(file.isDirectory()){
             File[] filelist = file.listFiles();
             if(filelist==null)
-                return  null;
+                return  files;
             for(int i=0;i<filelist.length;i++){
                 if(!filelist[i].isDirectory()){
                     String filename = filelist[i].getName();
@@ -104,7 +106,7 @@ public class FileUtils {
                     if(filename.endsWith(".mp3")||filename.endsWith(".wav"))
                         files.add(filelist[i]);
                 }else {
-                    getAudioFiles(filelist[i]);
+                    files.addAll(getAudioFiles(filelist[i]));
                 }
             }
         }else {

@@ -1,9 +1,14 @@
 package com.example.administrator.myapplication;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +22,7 @@ import android.widget.TextView;
 
 import com.example.administrator.myapplication.toolclasses.FileUtils;
 
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,10 +31,12 @@ public class MainActivity extends AppCompatActivity {
     BaseAdapter fileAdapter;
     TextView titlesong;
     List dataList;
+    FileUtils fileutile;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
+        checkPermission();
         initData();
         init();
         componentListener();
@@ -63,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
     * 初始化基础数据
     * */
     private void initData() {
-        dataList = FileUtils.getFileListByFileTypeWithPath(this,new String[]{"mp3","wav"});
+        fileutile = new FileUtils();
+        dataList = fileutile.getFileListByFileTypeWithPath(this,new String[]{"mp3","wav"});
     }
 
     /*
@@ -122,7 +131,35 @@ public class MainActivity extends AppCompatActivity {
 
         fileList.setAdapter(fileAdapter);
     }
+    private void checkPermission() {
 
+        if (Build.VERSION.SDK_INT >= 23) {
+            int write = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int read = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (write != PackageManager.PERMISSION_GRANTED || read != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 300);
+            } else {
+                String name = "CrashDirectory";
+                File file1 = new File(Environment.getExternalStorageDirectory(), name);
+                if (file1.mkdirs()) {
+                    Log.i("wytings", "permission -------------> " + file1.getAbsolutePath());
+                } else {
+                    Log.i("wytings", "permission -------------fail to make file ");
+                }
+            }
+        } else {
+            Log.i("wytings", "------------- Build.VERSION.SDK_INT < 23 ------------");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 300) {
+            Log.i("wytings", "--------------requestCode == 300->" + requestCode + "," + permissions.length + "," + grantResults.length);
+        } else {
+            Log.i("wytings", "--------------requestCode != 300->" + requestCode + "," + permissions + "," + grantResults);
+        }
+    }
 
 //////////////////////////////////////////////////////////////
 //    SoundPool soundPool;
