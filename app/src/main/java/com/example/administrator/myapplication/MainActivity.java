@@ -1,6 +1,8 @@
 package com.example.administrator.myapplication;
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.pm.LabeledIntent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.administrator.myapplication.toolclasses.FileUtils;
 
@@ -46,25 +49,35 @@ public class MainActivity extends AppCompatActivity {
     * 初始化控件监听事件
     * */
     private void componentListener() {
-        fileList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                LinearLayout clickItem = (LinearLayout) view;
-                TextView text = (TextView) clickItem.getChildAt(1);//获取选中项的TextView
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
         fileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LinearLayout clickItem = (LinearLayout) view;
                 TextView text = (TextView) clickItem.getChildAt(1);//获取选中项的TextView
+                String msg = text.getText().toString();
+                titlesong = (TextView) findViewById(R.id.titletext);
+                titlesong.setText(msg);
+                String songpath = ((TextView) clickItem.getChildAt(2)).getText().toString();
+                jumpToPaly(songpath);
+                showMessage(msg);
             }
         });
+    }
+
+    private void jumpToPaly(String songpath) {
+        Intent intent =new Intent(MainActivity.this,Singal_Activity.class);
+
+        //用Bundle携带数据
+        Bundle bundle=new Bundle();
+        //传递name参数为tinyphp
+        bundle.putString("songpath",songpath);
+        intent.putExtras(bundle);
+
+        startActivity(intent);
+    }
+
+    private void showMessage(String msg) {
+        Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
     }
 
     /*
@@ -118,13 +131,18 @@ public class MainActivity extends AppCompatActivity {
                 singal_Item.addView(albumImage);
 
                 TextView songName = new TextView(MainActivity.this);
-                songName.setText(dataList.get(i).toString());
+                songName.setText(((AudioFile)dataList.get(i)).getFielname());
                 songName.setTextSize(24);
                 songName.setTextColor(Color.BLUE);
                 songName.setPadding(5, 5, 5, 5);
                 songName.setGravity(Gravity.LEFT);
 
+                TextView songpath = new TextView(MainActivity.this);
+                songpath.setText(((AudioFile)dataList.get(i)).getFilepath());
+                songpath.setVisibility(View.INVISIBLE);
+
                 singal_Item.addView(songName);
+                singal_Item.addView(songpath);
                 return singal_Item;
             }
         };

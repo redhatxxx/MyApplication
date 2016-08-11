@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 public class Singal_Activity extends AppCompatActivity {
 
     MediaPlayer mediaplayer;
@@ -18,12 +20,27 @@ public class Singal_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mediaplayer = MediaPlayer.create(this,R.raw.touchthesky);
         setContentView(R.layout.play_activity);
+        //新页面接收数据
+        Bundle bundle = this.getIntent().getExtras();
+        //接收name值
+        String name = bundle.getString("songpath");
+        checkmediaplayer(name);
         initComponents();
-//        mediaplayer.start();
     }
-
+    private void checkmediaplayer(String name){
+        if(mediaplayer==null) {
+            mediaplayer = new MediaPlayer();
+        }else if(mediaplayer.isPlaying()){
+            mediaplayer.stop();
+        }
+        try {
+            mediaplayer.setDataSource(name);
+            mediaplayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void initComponents() {
         btnpaly = (ImageButton) findViewById(R.id.play);
         btnpause = (ImageButton) findViewById(R.id.pause);

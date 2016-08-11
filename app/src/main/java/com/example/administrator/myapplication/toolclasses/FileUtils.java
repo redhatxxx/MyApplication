@@ -6,8 +6,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
+
+import com.example.administrator.myapplication.AudioFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class FileUtils {
         return datalist;
     }
 
-    private static List getAudioFiles(File file) {
+    private List getAudioFiles(File file) {
         List files = new ArrayList();
         if(file.isDirectory()){
             File[] filelist = file.listFiles();
@@ -103,8 +104,9 @@ public class FileUtils {
                 if(!filelist[i].isDirectory()){
                     String filename = filelist[i].getName();
                     filename = filename.toLowerCase();
-                    if(filename.endsWith(".mp3")||filename.endsWith(".wav"))
-                        files.add(filelist[i]);
+                    if(matchType(filename)) {
+                        files.add(getFileInfo(filelist[i]));
+                    }
                 }else {
                     files.addAll(getAudioFiles(filelist[i]));
                 }
@@ -112,9 +114,33 @@ public class FileUtils {
         }else {
             String filename = file.getName();
             filename = filename.toLowerCase();
-            if(filename.endsWith(".mp3")||filename.endsWith(".wav"))
-                files.add(file);
+            if(matchType(filename))
+                files.add(getFileInfo(file));
         }
         return files;
+    }
+
+    public boolean matchType(String filename){
+        boolean match= false;
+        if(searchType==null||searchType.length<=0)
+            return match;
+        else{
+            for(int i=0;i<searchType.length;i++){
+                if (filename.endsWith(searchType[i])) {
+                    match = true;
+                    break;
+                }
+            }
+            return match;
+        }
+    }
+
+    public AudioFile getFileInfo(File file){
+        AudioFile audio = new AudioFile();
+        String filename = file.getName();
+        audio.setFielname(file.getName());
+        audio.setFilepath(file.getPath());
+        audio.setFiletype(filename.substring(filename.lastIndexOf(".")+1,filename.length()));
+        return audio;
     }
 }
