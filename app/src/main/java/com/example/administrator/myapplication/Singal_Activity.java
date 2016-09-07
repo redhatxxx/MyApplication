@@ -12,7 +12,6 @@ import java.io.IOException;
 
 public class Singal_Activity extends AppCompatActivity {
 
-    MediaPlayer mediaplayer;
     ImageButton btnpaly;
     ImageButton btnpause;
     ImageButton btnstop;
@@ -21,26 +20,9 @@ public class Singal_Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play_activity);
-        //新页面接收数据
-        Bundle bundle = this.getIntent().getExtras();
-        //接收name值
-        String name = bundle.getString("songpath");
-        checkmediaplayer(name);
         initComponents();
     }
-    private void checkmediaplayer(String name){
-        if(mediaplayer==null) {
-            mediaplayer = new MediaPlayer();
-        }else if(mediaplayer.isPlaying()){
-            mediaplayer.stop();
-        }
-        try {
-            mediaplayer.setDataSource(name);
-            mediaplayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
     private void initComponents() {
         btnpaly = (ImageButton) findViewById(R.id.play);
         btnpause = (ImageButton) findViewById(R.id.pause);
@@ -73,18 +55,14 @@ public class Singal_Activity extends AppCompatActivity {
     }
 
     private void stopMedia() {
-        mediaplayer.pause();
-        mediaplayer.seekTo(0);
         statusmsg.setText("停止");
     }
 
     private void pauseMedia() {
-        mediaplayer.pause();
         statusmsg.setText("暂停");
     }
 
     private void playMedia() {
-        mediaplayer.start();
         statusmsg.setText("播放");
     }
 

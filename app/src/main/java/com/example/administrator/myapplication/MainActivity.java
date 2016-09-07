@@ -1,7 +1,10 @@
 package com.example.administrator.myapplication;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.LabeledIntent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -23,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.administrator.myapplication.staticfield.BroadAction;
 import com.example.administrator.myapplication.toolclasses.FileUtils;
 
 import java.io.File;
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     TextView titlesong;
     List dataList;
     FileUtils fileutile;
+    MainActivityReceive mainreceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,15 +70,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void jumpToPaly(String songpath) {
-        Intent intent =new Intent(MainActivity.this,Singal_Activity.class);
-
-        //用Bundle携带数据
-        Bundle bundle=new Bundle();
-        //传递name参数为tinyphp
-        bundle.putString("songpath",songpath);
-        intent.putExtras(bundle);
-
-        startActivity(intent);
+        Intent intentbroad = new Intent(BroadAction.CTL_ACTION);
+        intentbroad.putExtra("control","0x001");
+        intentbroad.putExtra("filepath",songpath);
+        sendBroadcast(intentbroad);
     }
 
     private void showMessage(String msg) {
@@ -86,6 +86,12 @@ public class MainActivity extends AppCompatActivity {
     private void initData() {
         fileutile = new FileUtils();
         dataList = fileutile.getFileListByFileTypeWithPath(this,new String[]{"mp3","wav"});
+
+        mainreceiver = new MainActivityReceive();
+        //过滤广播类型
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BroadAction.UPDATE_ACTION);
+        registerReceiver(mainreceiver,filter);
     }
 
     /*
@@ -179,28 +185,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//////////////////////////////////////////////////////////////
-//    SoundPool soundPool;
-//
-//    HashMap<Integer,Integer> poolmap ;
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        initsounds();
-//        ImageView frontpage = new ImageView(this);
-//        frontpage.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.front));
-//        this.setContentView(frontpage);
-//        playsound(1,5);
-//    }
-//
-//    private void playsound(int sound, int loop) {
-//        soundPool.play(poolmap.get(sound),1,1,1,loop,1f);
-//    }
-//
-//    private void initsounds() {
-//        soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC,100);
-//        poolmap = new HashMap<Integer, Integer>();
-//        poolmap.put(1,soundPool.load(this,R.raw.ibelieve,1));
-//    }
+    //接受广播类
+    public class MainActivityReceive extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    }
 }

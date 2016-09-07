@@ -9,30 +9,42 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 
 import com.example.administrator.myapplication.MainActivity;
+import com.example.administrator.myapplication.staticfield.BroadAction;
+
+import java.io.IOException;
 
 public class MediaPlayerService extends Service {
-    MyThread msgthread;
+//    MyThread msgthread;
     MediaPlayer audioPlayer;
+    MediaPlayerReceive playerReceive;
     public MediaPlayerService() {
     }
 
     @Override
     public  void onCreate(){
         super.onCreate();
+        playerReceive = new MediaPlayerReceive();
         //设置广播过滤
         IntentFilter audioFilter = new IntentFilter();
-
+        audioFilter.addAction(BroadAction.CTL_ACTION);
+        registerReceiver(playerReceive,audioFilter);
         audioPlayer = new MediaPlayer();
+        audioPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+
+            }
+        });
     }
     @Override
     public void onStart(Intent intent,int startId){
-        msgthread = new MyThread();
-        msgthread.start();
+//        msgthread = new MyThread();
+//        msgthread.start();
         super.onStart(intent,startId);
     }
     @Override
     public void onDestroy(){
-        msgthread.flag = false;
+//        msgthread.flag = false;
         super.onDestroy();
     }
     @Override
@@ -41,12 +53,40 @@ public class MediaPlayerService extends Service {
         return null;
     }
 
-    //广播接受
-    class MusicReceiver extends BroadcastReceiver{
+    private void stopMedia() {
+        audioPlayer.pause();
+        audioPlayer.seekTo(0);
+    }
+
+    private void pauseMedia() {
+        audioPlayer.pause();
+    }
+
+    private void playMedia() {
+        audioPlayer.start();
+    }
+    //接受广播类
+    public class MediaPlayerReceive extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            String control = intent.getStringExtra("control");
+            String filepath = intent.getStringExtra("filepath");
+            checkmediaplayer(filepath);
+            playMedia();
+        }
+    }
+    private void checkmediaplayer(String name){
+        if(audioPlayer==null) {
+            audioPlayer = new MediaPlayer();
+        }else if(audioPlayer.isPlaying()){
+            audioPlayer.stop();
+        }
+        try {
+            audioPlayer.setDataSource(name);
+            audioPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     class MyThread extends Thread{
