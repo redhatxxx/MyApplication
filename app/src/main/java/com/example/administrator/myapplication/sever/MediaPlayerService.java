@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.provider.Settings;
 
+import com.example.administrator.myapplication.AudioFile;
 import com.example.administrator.myapplication.MainActivity;
 import com.example.administrator.myapplication.staticfield.BroadAction;
 
@@ -17,6 +19,8 @@ public class MediaPlayerService extends Service {
 //    MyThread msgthread;
     MediaPlayer audioPlayer;
     MediaPlayerReceive playerReceive;
+    int number = -1;
+    String songpath = "";
     public MediaPlayerService() {
     }
 
@@ -32,10 +36,28 @@ public class MediaPlayerService extends Service {
         audioPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-
+                gotoNextSong();
             }
         });
     }
+
+    //跳转到下一首
+    private void gotoNextSong() {
+        number++;
+        int count = MainActivity.dataList.size();
+        if(number>=count)
+            number=0;
+        songpath = ((AudioFile)MainActivity.dataList.get(number)).getFilepath();
+        audioPlayer.reset();
+        try {
+            audioPlayer.setDataSource(songpath);
+            audioPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        playMedia();
+    }
+
     @Override
     public void onStart(Intent intent,int startId){
 //        msgthread = new MyThread();
@@ -63,7 +85,8 @@ public class MediaPlayerService extends Service {
     }
 
     private void playMedia() {
-        audioPlayer.start();
+        if(!audioPlayer.isPlaying())
+            audioPlayer.start();
     }
     //接受广播类
     public class MediaPlayerReceive extends BroadcastReceiver{
@@ -71,16 +94,27 @@ public class MediaPlayerService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String control = intent.getStringExtra("control");
-            String filepath = intent.getStringExtra("filepath");
-            checkmediaplayer(filepath);
-            playMedia();
+            songpath = intent.getStringExtra("filepath");
+            int current = intent.getIntExtra("number",0);
+            if(current==number)
+                return;
+            else
+                number = current;
+            if(control.equals("0x001")){
+                checkmediaplayer(songpath);
+                playMedia();
+            }
+            if(control.equals("0x002"))
+                pauseMedia();
+            if(control.equals("0x003"))
+                stopMedia();
         }
     }
     private void checkmediaplayer(String name){
         if(audioPlayer==null) {
             audioPlayer = new MediaPlayer();
         }else if(audioPlayer.isPlaying()){
-            audioPlayer.stop();
+            audioPlayer.reset();
         }
         try {
             audioPlayer.setDataSource(name);

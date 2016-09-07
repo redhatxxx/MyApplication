@@ -23,23 +23,31 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.administrator.myapplication.sever.MediaPlayerService;
 import com.example.administrator.myapplication.staticfield.BroadAction;
 import com.example.administrator.myapplication.toolclasses.FileUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    public static List dataList;
     ListView fileList;
     BaseAdapter fileAdapter;
+    SimpleAdapter fileListAdapter;
     TextView titlesong;
-    List dataList;
     FileUtils fileutile;
     MainActivityReceive mainreceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         initData();
         init();
         componentListener();
+        Intent intent = new Intent(this, MediaPlayerService.class);
+        startService(intent);
     }
 
     /*
@@ -57,27 +67,32 @@ public class MainActivity extends AppCompatActivity {
         fileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LinearLayout clickItem = (LinearLayout) view;
+                RelativeLayout clickItem = (RelativeLayout) view;
                 TextView text = (TextView) clickItem.getChildAt(1);//获取选中项的TextView
                 String msg = text.getText().toString();
                 titlesong = (TextView) findViewById(R.id.titletext);
                 titlesong.setText(msg);
                 String songpath = ((TextView) clickItem.getChildAt(2)).getText().toString();
-                jumpToPaly(songpath);
+                jumpToPaly(i, songpath);
                 showMessage(msg);
             }
         });
     }
 
-    private void jumpToPaly(String songpath) {
+    private void jumpToPaly(int number, String songpath) {
+        //跳转界面
+        Intent jumpintent = new Intent(this, Singal_Activity.class);
+        startActivity(jumpintent);
+        //播放歌曲
         Intent intentbroad = new Intent(BroadAction.CTL_ACTION);
-        intentbroad.putExtra("control","0x001");
-        intentbroad.putExtra("filepath",songpath);
+        intentbroad.putExtra("control", "0x001");
+        intentbroad.putExtra("filepath", songpath);
+        intentbroad.putExtra("number", String.valueOf(number));
         sendBroadcast(intentbroad);
     }
 
     private void showMessage(String msg) {
-        Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
     }
 
     /*
@@ -85,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
     * */
     private void initData() {
         fileutile = new FileUtils();
-        dataList = fileutile.getFileListByFileTypeWithPath(this,new String[]{"mp3","wav"});
+        dataList = fileutile.getFileListByFileTypeWithPath(this, new String[]{"mp3", "wav"});
 
         mainreceiver = new MainActivityReceive();
         //过滤广播类型
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadAction.UPDATE_ACTION);
-        registerReceiver(mainreceiver,filter);
+        registerReceiver(mainreceiver, filter);
     }
 
     /*
@@ -101,10 +116,13 @@ public class MainActivity extends AppCompatActivity {
         titlesong = (TextView) findViewById(R.id.titletext);
         titlesong.setText("Touch the sky");
         fileList = (ListView) findViewById(R.id.filelist);
-        if(dataList==null||dataList.size()<=0){
+        if (dataList == null || dataList.size() <= 0) {
             dataList.add(new String("no data!"));
         }
-        fileAdapter = new BaseAdapter() {
+        fileListAdapter = new SimpleAdapter(this, getDataItem(), R.layout.list_item,
+                new String[]{"songname", "singer"},
+                new int[]{R.id.songname, R.id.singer});
+ /*       fileAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
                 return dataList.size();
@@ -151,10 +169,22 @@ public class MainActivity extends AppCompatActivity {
                 singal_Item.addView(songpath);
                 return singal_Item;
             }
-        };
+        };*/
 
-        fileList.setAdapter(fileAdapter);
+        fileList.setAdapter(fileListAdapter);
     }
+
+    public ArrayList<HashMap<String, Object>> getDataItem(){
+        ArrayList<HashMap<String, Object>> item = new ArrayList<HashMap<String, Object>>();
+        for(int i=0;i<dataList.size();i++){
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("songname", ((AudioFile)dataList.get(i)).getFielname());
+            map.put("singer", ((AudioFile)dataList.get(i)).getFilepath());
+            item.add(map);
+        }
+        return item;
+    }
+
     private void checkPermission() {
 
         if (Build.VERSION.SDK_INT >= 23) {
@@ -186,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //接受广播类
-    public class MainActivityReceive extends BroadcastReceiver{
+    public class MainActivityReceive extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
