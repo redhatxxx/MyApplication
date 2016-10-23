@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         //播放歌曲
         Intent intentbroad = new Intent(BroadAction.CTL_ACTION);
         intentbroad.putExtra("control", "0x001");
+        intentbroad.putExtra("action","");
         intentbroad.putExtra("filepath", songpath);
         intentbroad.putExtra("number", String.valueOf(number));
         sendBroadcast(intentbroad);
@@ -122,55 +123,6 @@ public class MainActivity extends AppCompatActivity {
         fileListAdapter = new SimpleAdapter(this, getDataItem(), R.layout.list_item,
                 new String[]{"songname", "singer"},
                 new int[]{R.id.songname, R.id.singer});
- /*       fileAdapter = new BaseAdapter() {
-            @Override
-            public int getCount() {
-                return dataList.size();
-            }
-
-            @Override
-            public Object getItem(int i) {
-                return null;
-            }
-
-            @Override
-            public long getItemId(int i) {
-                return 0;
-            }
-
-            @Override
-            public View getView(int i, View view, ViewGroup viewGroup) {
-                //动态生成列表中的项对应的view，每个view由LinearLayout
-                //中包含一个ImageView及两个TextView组成
-                LinearLayout singal_Item = new LinearLayout(MainActivity.this);
-
-                singal_Item.setOrientation(LinearLayout.HORIZONTAL);//朝向向下
-                singal_Item.setPadding(5, 5, 5, 5);
-
-                ImageView albumImage = new ImageView(MainActivity.this);
-                albumImage.setImageDrawable(getResources().getDrawable(R.drawable.front));
-                albumImage.setScaleType(ImageView.ScaleType.FIT_XY);
-                albumImage.setLayoutParams(new Gallery.LayoutParams(100, 98));
-
-                singal_Item.addView(albumImage);
-
-                TextView songName = new TextView(MainActivity.this);
-                songName.setText(((AudioFile)dataList.get(i)).getFielname());
-                songName.setTextSize(24);
-                songName.setTextColor(Color.BLUE);
-                songName.setPadding(5, 5, 5, 5);
-                songName.setGravity(Gravity.LEFT);
-
-                TextView songpath = new TextView(MainActivity.this);
-                songpath.setText(((AudioFile)dataList.get(i)).getFilepath());
-                songpath.setVisibility(View.INVISIBLE);
-
-                singal_Item.addView(songName);
-                singal_Item.addView(songpath);
-                return singal_Item;
-            }
-        };*/
-
         fileList.setAdapter(fileListAdapter);
     }
 

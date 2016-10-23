@@ -57,7 +57,22 @@ public class MediaPlayerService extends Service {
         }
         playMedia();
     }
-
+    //跳转到上一首PERVIOUS_SONG
+    private void gotoPerviousSong() {
+        number--;
+        int count = MainActivity.dataList.size();
+        if(number<0)
+            number=count-1;
+        songpath = ((AudioFile)MainActivity.dataList.get(number)).getFilepath();
+        audioPlayer.reset();
+        try {
+            audioPlayer.setDataSource(songpath);
+            audioPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        playMedia();
+    }
     @Override
     public void onStart(Intent intent,int startId){
 //        msgthread = new MyThread();
@@ -95,19 +110,34 @@ public class MediaPlayerService extends Service {
         public void onReceive(Context context, Intent intent) {
             String control = intent.getStringExtra("control");
             songpath = intent.getStringExtra("filepath");
-            int current = intent.getIntExtra("number",0);
-            if(current==number)
-                return;
-            else
-                number = current;
-            if(control.equals("0x001")){
-                checkmediaplayer(songpath);
-                playMedia();
+            String action = intent.getStringExtra("action");
+            if(action.equals("")) {
+                int current = intent.getIntExtra("number", 0);
+                if (current == number)
+                    return;
+                else
+                    number = current;
+                if (control.equals("0x001")) {
+                    checkmediaplayer(songpath);
+                    playMedia();
+                }
+            }else{
+                if (action.equals(BroadAction.CURRENT_SONG)){
+                    if (control.equals("0x001"))
+                        playMedia();
+                    if(control.equals("0x002"))
+                        pauseMedia();
+                    if(control.equals("0x003"))
+                        stopMedia();
+                }
+                if(action.equals(BroadAction.NEXT_SONG)){
+                    gotoNextSong();
+                }
+                if(action.equals(BroadAction.PERVIOUS_SONG)){
+                    gotoPerviousSong();
+                }
             }
-            if(control.equals("0x002"))
-                pauseMedia();
-            if(control.equals("0x003"))
-                stopMedia();
+
         }
     }
     private void checkmediaplayer(String name){

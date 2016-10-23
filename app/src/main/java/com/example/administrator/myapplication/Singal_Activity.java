@@ -15,11 +15,11 @@ import com.example.administrator.myapplication.staticfield.BroadAction;
 
 public class Singal_Activity extends AppCompatActivity {
 
-    ImageButton btnpaly;
     ImageButton btnpause;
     ImageButton btnstop;
     TextView statusmsg;
     SingalReceive receiver;
+    int playstatus = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,18 +33,11 @@ public class Singal_Activity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        btnpaly = (ImageButton) findViewById(R.id.play);
         btnpause = (ImageButton) findViewById(R.id.pause);
         btnstop  = (ImageButton) findViewById(R.id.stop);
         statusmsg = (TextView) findViewById(R.id.statustext);
 
-        btnpaly.setOnClickListener(new Button.OnClickListener(){
 
-            @Override
-            public void onClick(View view) {
-                playMedia();
-            }
-        });
 
         btnpause.setOnClickListener(new Button.OnClickListener(){
 
@@ -66,22 +59,28 @@ public class Singal_Activity extends AppCompatActivity {
     private void stopMedia() {
         Intent intentbroad = new Intent(BroadAction.CTL_ACTION);
         intentbroad.putExtra("control","0x003");
+        intentbroad.putExtra("number", String.valueOf(-1));
+        intentbroad.putExtra("action",BroadAction.CURRENT_SONG);
         sendBroadcast(intentbroad);
         statusmsg.setText("停止");
     }
 
     private void pauseMedia() {
         Intent intentbroad = new Intent(BroadAction.CTL_ACTION);
-        intentbroad.putExtra("control","0x002");
+        intentbroad.putExtra("number", String.valueOf(-1));
+        intentbroad.putExtra("action",BroadAction.CURRENT_SONG);
+        if(playstatus==0){
+            btnpause.setImageResource(R.drawable.ic_media_play);
+            intentbroad.putExtra("control","0x002");
+            statusmsg.setText("暂停");
+            playstatus = 1;
+        }else if(playstatus==1){
+            btnpause.setImageResource(R.drawable.ic_media_pause);
+            intentbroad.putExtra("control","0x001");
+            statusmsg.setText("播放");
+            playstatus = 0;
+        }
         sendBroadcast(intentbroad);
-        statusmsg.setText("暂停");
-    }
-
-    private void playMedia() {
-        Intent intentbroad = new Intent(BroadAction.CTL_ACTION);
-        intentbroad.putExtra("control","0x001");
-        sendBroadcast(intentbroad);
-        statusmsg.setText("播放");
     }
 
     //接受广播类

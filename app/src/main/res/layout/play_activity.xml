@@ -14,11 +14,11 @@
     <!--android:layout_height="wrap_content"-->
     <!--android:src="@drawable/front"/>-->
 
-    <ImageButton
+    ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/play"
-        android:src="@android:drawable/ic_media_play"
+        android:src="@drawable/ic_media_play"
         android:layout_marginLeft="57dp"
         android:layout_marginStart="57dp"
         android:layout_alignParentBottom="true"
@@ -29,8 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/pause"
-        android:src="@android:drawable/ic_media_pause"
-        android:layout_alignTop="@+id/play"
+        android:src="@drawable/ic_media_pause"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -49,11 +49,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/stop"
-        android:src="@android:drawable/ic_lock_power_off"
+        android:src="@drawable/ic_lock_power_off"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/pause"
-        android:layout_toEndOf="@+id/pause"
-        android:layout_marginLeft="43dp"
-        android:layout_marginStart="43dp" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="48dp"
+        android:layout_marginEnd="48dp" />
 
 </RelativeLayout>
